@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">My Application</string>
+    <string name="country">Country</string>
+    <string name="capital">capital</string>
+    <string name="flagview">FlagView</string>
+    <string name="flagView" />
+    <string name="assginment_003" />
+    <string name="load_data_from_the_internet">Load data from the Internet</string>
+</resources>
