@@ -118,8 +118,10 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-        // Execute the request asynchronously
+        // add the request to queue
         requestQueue.add(jsonObjectRequest);
+
+
     }
 
 
