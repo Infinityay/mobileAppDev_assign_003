@@ -2,14 +2,19 @@ package com.example.assignment_003;
 
 import static android.content.ContentValues.TAG;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.widget.NestedScrollView;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -34,7 +39,9 @@ public class MainActivity extends AppCompatActivity {
     private CountryAdapter countryAdapter;
     private ProgressBar progressBar;
     private NestedScrollView nestedScrollView;
-
+    private Button loadBtn;
+    private boolean loadStart=false;
+    private ImageView errorIcon;
     private int curPage = 1;
     private final int maxPage = 8;
 
@@ -46,22 +53,36 @@ public class MainActivity extends AppCompatActivity {
         //  initializing our views
         nestedScrollView = findViewById(R.id.country_NestedScrollView);
         recyclerView = findViewById(R.id.country_recycler_view);
+        loadBtn = findViewById(R.id.loadBtn);
         progressBar = findViewById(R.id.country_progressBar);
+        errorIcon = findViewById(R.id.errorIcon);
 
-        // get data from the internet and parse it
-        downloadData(curPage,maxPage);
+        progressBar.setVisibility(View.GONE);
+        loadBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                progressBar.setVisibility(View.VISIBLE);
+                // get data from the internet and parse it
+                downloadDataOnePage(curPage,maxPage);
+
+                loadStart=true;
+            }
+        });
+
 
         // adding on scroll change listener method for our nested scroll view
         nestedScrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
             @Override
             public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+
                 // on scroll change we are checking when users scroll as bottom.
-                // if the scroll distance equals to top - bottom
-                if (scrollY == v.getChildAt(0).getMeasuredHeight() - v.getMeasuredHeight()) {
-                    curPage++;
+                // if the scroll distance equals to top - bottom and click the loadBtn
+                if (loadStart && scrollY == v.getChildAt(0).getMeasuredHeight() - v.getMeasuredHeight()){
+
                     progressBar.setVisibility(View.VISIBLE);
-                    downloadData(curPage,maxPage);
+                    downloadDataOnePage(curPage,maxPage);
                 }
+
             }
         });
 
@@ -71,17 +92,18 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Get the country data from Internet when pressing loadBtn
      * */
-    private void downloadData(int page, int limit){
+    private void downloadDataOnePage(int page, int limit){
         if (page>limit){
-            Log.d(TAG, "downloadData: "+ page + " " + limit);
+            Log.d(TAG, "downloadDataOnePage: "+ page + " " + limit);
             Toast.makeText(this, "You have got all data...", Toast.LENGTH_SHORT).show();
             // hiding our progress bar
             progressBar.setVisibility(View.GONE);
             return;
         }
-        Log.d(TAG, "downloadData: "+ page + " " + limit);
+        Log.d(TAG, "downloadDataOnePage: "+ page + " " + limit);
         String url = "https://studio.mg/api-country/index.php?page="+page;
         RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
+
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
                 Request.Method.GET, url, null,
@@ -94,16 +116,26 @@ public class MainActivity extends AppCompatActivity {
 
                             // passing data from our json array in our array list.
                             parseJSONArray(jsonArray);
-                
+
                             // passing array list to our adapter class
                             countryAdapter = new CountryAdapter(countries,MainActivity.this);
+
 
                             // setting layout manager to our recycler view
                             recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
 
+
+                            recyclerView.addItemDecoration(
+                                    new DividerItemDecoration(MainActivity.this, DividerItemDecoration.VERTICAL));
+
+
+
                             // setting adapter to our recycler view
                             recyclerView.setAdapter(countryAdapter);
 
+                            errorIcon.setVisibility(View.GONE);
+
+                            curPage++;
                         } catch (JSONException e) {
                             throw new RuntimeException(e);
                         }
@@ -114,6 +146,8 @@ public class MainActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
                         Toast.makeText(getApplicationContext(),"Error when downloading data",
                                 Toast.LENGTH_SHORT).show();
+                        progressBar.setVisibility(View.GONE);
+                        errorIcon.setVisibility(View.VISIBLE);
                         Log.d("TAG","Error when downloading data:"+error);
                     }
                 });
@@ -123,7 +157,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-
 
     /**
      *  Parse JSONArray and add current country into countries
