@@ -15,3 +15,10 @@
 Add the hint when meeting errors and some item decoration.
 
 ![vertion2](https://cdn.infinityday.cn//typora/vertion2.gif)
+
+## Vertion 3
+
+Add a search feature within toolbar.
+
+![Assignment_004](https://cdn.infinityday.cn//typora/Assignment_004.gif)
+

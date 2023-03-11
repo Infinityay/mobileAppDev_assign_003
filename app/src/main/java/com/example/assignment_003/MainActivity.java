@@ -6,18 +6,24 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import androidx.appcompat.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.MenuItemCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -35,6 +41,7 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -45,14 +52,19 @@ public class MainActivity extends AppCompatActivity {
     private RelativeLayout relativeLayout;
     private Button loadBtn;
     private ImageView errorIcon;
-
     private TextView progressText;
+    private Toolbar toolbar;
+    private SearchView searchView;
+    private Menu menu;
+
+
 
 
     private int curPage = 1;
-    private int maxPage=2;
+    private int maxPage = 2;
     private boolean allDataToastShown = true;
     private boolean loadStart = false;
+    private boolean isQueryStart = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +72,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.layout_recycler_view);
 
         initView();
-
 
         // add click listener
         loadBtn.setOnClickListener(new View.OnClickListener() {
@@ -82,14 +93,65 @@ public class MainActivity extends AppCompatActivity {
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 // Check if we have reached the bottom of the RecyclerView
-                if (loadStart && !recyclerView.canScrollVertically(1)) {
+                if (loadStart && !recyclerView.canScrollVertically(1) && !isQueryStart) {
                     downloadData(curPage, maxPage);
                 }
             }
         });
 
+
     }
 
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        searchView = (SearchView) searchItem.getActionView();
+
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                countryAdapter.getFilter().filter(newText);
+                if (newText.isEmpty()){
+                    loadBtn.setVisibility(View.VISIBLE);
+                }
+                else {
+                    loadBtn.setVisibility(View.GONE);
+                }
+                return false;
+            }
+        });
+
+
+        searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(@NonNull MenuItem item) {
+                loadBtn.setVisibility(View.GONE);
+                Log.d(TAG, "onClick: search");
+                isQueryStart=true;
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(@NonNull MenuItem item) {
+                Log.d(TAG, "onClose: search");
+                loadBtn.setVisibility(View.VISIBLE);
+                isQueryStart=false;
+                return true;
+            }
+        });
+
+
+        return true;
+    }
 
 
     /**
@@ -103,6 +165,10 @@ public class MainActivity extends AppCompatActivity {
         loadBtn = findViewById(R.id.loadBtn);
         errorIcon = findViewById(R.id.errorIcon);
         progressText = findViewById(R.id.progressText);
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        Objects.requireNonNull(getSupportActionBar()).setTitle("Application");
+
 
         // init recyclerView
         LinearLayoutManager manager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);

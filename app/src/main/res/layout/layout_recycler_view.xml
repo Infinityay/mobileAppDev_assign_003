@@ -1,10 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/layout_recycler_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
+
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:menu="@menu/main_menu"/>
 
 
 
@@ -12,11 +24,11 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/country_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_above="@+id/country_progressBar"
-        android:layout_alignParentTop="true"
         android:nestedScrollingEnabled="false"
-        tools:listitem="@layout/item_recycler_view" />
+        tools:listitem="@layout/item_recycler_view"
+        android:layout_below="@id/toolbar"/>
 
 
     <!--Adding progress bar for the purpose of loading-->

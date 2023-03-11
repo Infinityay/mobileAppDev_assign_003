@@ -9,4 +9,5 @@
     <string name="load_data_from_internet" />
     <string name="loading" />
     <string name="downloading">downloading ...</string>
+    <string name="search" />
 </resources>
