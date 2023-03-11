@@ -6,4 +6,7 @@
     <string name="flagView" />
     <string name="assginment_003" />
     <string name="load_data_from_the_internet">Load data from the Internet</string>
+    <string name="load_data_from_internet" />
+    <string name="loading" />
+    <string name="downloading">downloading ...</string>
 </resources>
